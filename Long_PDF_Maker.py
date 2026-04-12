@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 """
-J PDF Maker — stitch a multi-page PDF into a single long-page PDF while
+J Long PDF Maker — stitch a multi-page PDF into a single long-page PDF while
 preserving vector quality, with a PyQt6 GUI.
 
 Features:
@@ -14,7 +14,7 @@ Features:
 - Save as vector PDF (Ctrl+S) or as PNG with a selectable DPI (Ctrl+E)
 - Runs on Windows, macOS, and Linux (Fusion style for consistent rendering)
 
-Dependencies: PyQt6, PyMuPDF. Run with `python PDF_maker.py`.
+Dependencies: PyQt6, PyMuPDF. Run with `python Long_PDF_Maker.py`.
 """
 
 import sys
@@ -289,7 +289,7 @@ class PdfView(QGraphicsView):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("J PDF Maker")
+        self.setWindowTitle("J Long PDF Maker")
         self.resize(1280, 820)
         self.setMinimumSize(560, 420)
         self.setAcceptDrops(True)
@@ -316,7 +316,7 @@ class MainWindow(QMainWindow):
 
         header = QVBoxLayout()
         header.setSpacing(2)
-        title = QLabel("J PDF Maker")
+        title = QLabel("J Long PDF Maker")
         title.setObjectName("Title")
         subtitle = QLabel("Drag and drop a PDF. Adjust the header and footer guides. Save a stitched long-page PDF.")
         subtitle.setObjectName("Subtitle")

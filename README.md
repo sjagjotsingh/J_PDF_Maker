@@ -2,7 +2,7 @@
 
 Two Python/PyQt6 tools for making PDFs look the way you want:
 
-- **PDF_maker.py** — stitch a multi-page PDF into a single long-page PDF while preserving vector quality, with draggable header/footer guides and a live preview.
+- **Long_PDF_Maker.py** — stitch a multi-page PDF into a single long-page PDF while preserving vector quality, with draggable header/footer guides and a live preview.
 - **Markdown_to_PDF.py** — convert Markdown to a styled PDF (colored code blocks, wrapped lines, configurable page size / orientation / text scale) with a live rendered preview.
 
 Both apps share the same dark Catppuccin-style UI: drag-and-drop source panel on the left, live preview on the right, and a row of colored-chip controls at the bottom.
@@ -28,12 +28,12 @@ py -m venv .venv
 
 > Note: a separate PyPI package named `fitz` exists and is unrelated. You only need `PyMuPDF`, which provides the real `fitz` module. If you installed the wrong one, run `pip uninstall -y fitz frontend` first.
 
-## PDF_maker.py — long-page stitcher
+## Long_PDF_Maker.py — long-page stitcher
 
 Stitches a multi-page PDF into one tall page, keeping everything vector.
 
 ```bash
-.venv/bin/python PDF_maker.py
+.venv/bin/python Long_PDF_Maker.py
 ```
 
 ### Features
@@ -118,7 +118,7 @@ On macOS, `Ctrl` maps to `⌘`.
 ## Project layout
 
 ```
-PDF_maker.py          # long-page stitcher GUI
+Long_PDF_Maker.py          # long-page stitcher GUI
 Markdown_to_PDF.py    # Markdown → PDF CLI + GUI
 README.md
 ```

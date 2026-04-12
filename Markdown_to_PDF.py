@@ -227,6 +227,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--page-size", choices=PAGE_SIZES, default=DEFAULT_PAGE_SIZE)
     parser.add_argument("--orientation", choices=ORIENTATIONS, default=DEFAULT_ORIENTATION)
     parser.add_argument("--scale", type=float, default=1.0, help="Text scale factor (e.g. 1.25 = 125%)")
+    parser.add_argument("--no-compress", action="store_true", help="Skip the PyMuPDF compression pass")
     parser.add_argument("--gui", action="store_true", help="Launch the GUI")
     return parser.parse_args()
 
@@ -316,6 +317,20 @@ def render_pdf(html_path: Path, pdf_path: Path) -> str:
     return "chromium"
 
 
+def compress_pdf(pdf_path: Path) -> None:
+    try:
+        import fitz
+    except Exception:
+        return
+    tmp = pdf_path.with_suffix(pdf_path.suffix + ".tmp")
+    doc = fitz.open(str(pdf_path))
+    try:
+        doc.save(str(tmp), garbage=4, deflate=True, clean=True)
+    finally:
+        doc.close()
+    tmp.replace(pdf_path)
+
+
 def convert_md_to_pdf(
     input_md: Path,
     output_pdf: Path,
@@ -324,10 +339,13 @@ def convert_md_to_pdf(
     page_size: str = DEFAULT_PAGE_SIZE,
     orientation: str = DEFAULT_ORIENTATION,
     scale: float = 1.0,
+    compress: bool = True,
 ) -> str:
     html_path = output_pdf.with_suffix(".html")
     build_html(input_md, html_path, title, page_size, orientation, scale)
     engine_used = render_pdf(html_path, output_pdf)
+    if compress:
+        compress_pdf(output_pdf)
     if not keep_html:
         try:
             html_path.unlink()
@@ -550,6 +568,14 @@ def _run_gui() -> int:
             self.title_edit.textChanged.connect(lambda _: self._timer.start())
             controls.addWidget(self.title_edit, 1)
 
+            self.compress_btn = QPushButton("Compress: ON")
+            self.compress_btn.setObjectName("Secondary")
+            self.compress_btn.setCheckable(True)
+            self.compress_btn.setChecked(True)
+            self.compress_btn.setToolTip("Shrink output via PyMuPDF (garbage collect + deflate)")
+            self.compress_btn.toggled.connect(self._on_compress_toggled)
+            controls.addWidget(self.compress_btn)
+
             self.refresh_btn = QPushButton("Refresh Preview")
             self.refresh_btn.setObjectName("Secondary")
             self.refresh_btn.clicked.connect(self._update_preview)
@@ -605,6 +631,9 @@ def _run_gui() -> int:
                 f"border-radius: 8px; font-weight: 600; font-size: 12px;"
             )
             return lbl
+
+        def _on_compress_toggled(self, on: bool):
+            self.compress_btn.setText(f"Compress: {'ON' if on else 'OFF'}")
 
         def dragEnterEvent(self, event: QDragEnterEvent):
             if event.mimeData().hasUrls():
@@ -668,6 +697,7 @@ def _run_gui() -> int:
                     page_size=self.size_combo.currentText(),
                     orientation=self.orient_combo.currentText(),
                     scale=self.scale_spin.value() / 100.0,
+                    compress=False,
                 )
                 self._last_engine = engine_used
             except SystemExit as e:
@@ -740,6 +770,7 @@ def _run_gui() -> int:
                     page_size=self.size_combo.currentText(),
                     orientation=self.orient_combo.currentText(),
                     scale=self.scale_spin.value() / 100.0,
+                    compress=self.compress_btn.isChecked(),
                 )
             except Exception as e:
                 QMessageBox.critical(self, "Save failed", str(e))
@@ -793,6 +824,8 @@ def main() -> int:
 
     build_html(input_md, html_path, args.title, args.page_size, args.orientation, args.scale)
     engine_used = render_pdf(html_path, output_pdf)
+    if not args.no_compress:
+        compress_pdf(output_pdf)
 
     if not args.keep_html:
         try:
