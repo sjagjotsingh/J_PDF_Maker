@@ -481,8 +481,10 @@ class MainWindow(QMainWindow):
 
     def _chip(self, text: str, color: str) -> QLabel:
         lbl = QLabel(text)
+        lbl.setFixedHeight(34)
+        lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lbl.setStyleSheet(
-            f"background-color: {color}; color: #1e1e2e; padding: 3px 10px; "
+            f"background-color: {color}; color: #1e1e2e; padding: 0 12px; "
             f"border-radius: 8px; font-weight: 600; font-size: 12px;"
         )
         return lbl
