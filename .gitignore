@@ -26,6 +26,8 @@ ENV/
 # Output artifacts
 *_long_page_vector.pdf
 *_long_page_vector.png
+*_merged.pdf
+test_*.pdf
 
 # Misc
 *.log

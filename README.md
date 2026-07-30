@@ -1,11 +1,12 @@
 # J PDF Maker
 
-Two Python/PyQt6 tools for making PDFs look the way you want:
+Three Python/PyQt6 tools for making PDFs look the way you want:
 
 - **Long_PDF_Maker.py** — stitch a multi-page PDF into a single long-page PDF while preserving vector quality, with draggable header/footer guides and a live preview.
+- **Merge_Two_Pages.py** — combine two PDF pages (e.g. the front and back of a document) onto a single page, with drag-to-position, edge/corner cropping, and undo/redo.
 - **Markdown_to_PDF.py** — convert Markdown to a styled PDF (colored code blocks, wrapped lines, configurable page size / orientation / text scale) with a live rendered preview.
 
-Both apps share the same dark Catppuccin-style UI: drag-and-drop source panel on the left, live preview on the right, and a row of colored-chip controls at the bottom.
+All apps share the same dark Catppuccin-style UI: a live preview and a row of controls that reflow to new rows when the window is narrow.
 
 ## Install
 
@@ -63,6 +64,50 @@ Default output names from the save dialogs:
 | Save PDF | `Ctrl+S` |
 | Save PNG | `Ctrl+E` |
 
+## Merge_Two_Pages.py — two pages onto one
+
+Combines two pages of a PDF onto a single page — handy for putting the front
+and back of a document side by side (or one placed onto the other).
+
+```bash
+.venv/bin/python Merge_Two_Pages.py
+```
+
+### Features
+
+- Drag and drop a PDF with 2+ pages (or click **Open PDF**, or press `Ctrl+O`)
+- Pick which page is the **base** (stays fixed, fills the output) and which is
+  the **moved** page (placed on top)
+- **Pan / Crop mode toggle** (default is Crop):
+  - *Crop mode* — drag the moved page's **corners** to crop in two directions,
+    or drag an **edge** to crop in a single direction
+  - *Pan mode* — drag the moved page anywhere on the base
+- Exact **X / Y** offset spin-boxes (with `−` / `+` steppers) and a **Scale** control
+- **Center** button to snap the moved page to the middle, **Reset crop** to restore full size
+- **Undo / Redo** for every change (`Ctrl+Z` / `Ctrl+Y`)
+- **Quality (DPI)** — reads the document's native resolution from its embedded
+  images and uses it automatically (**Auto**), or set a value manually
+- Output is a single-page PDF the same size as the base page (`Ctrl+S`)
+
+### How it works
+
+Both pages are normalized through a resolution-aware render (rotation and
+non-zero MediaBox origins applied exactly as shown in the preview), so the
+saved page matches the preview even for scanned or rotated PDFs. The moved page
+is then cropped, scaled, and placed onto the base page. Auto quality detects the
+native DPI from the largest embedded image (`pixels ÷ displayed inches`).
+
+Default output name from the save dialog: `<name>_merged.pdf`.
+
+### Shortcuts
+
+| Action | Shortcut |
+| --- | --- |
+| Open PDF | `Ctrl+O` |
+| Save PDF | `Ctrl+S` |
+| Undo | `Ctrl+Z` |
+| Redo | `Ctrl+Y` |
+
 ## Markdown_to_PDF.py — Markdown → styled PDF
 
 Converts a Markdown file to a styled PDF suitable for cheat sheets and technical docs.
@@ -118,7 +163,8 @@ On macOS, `Ctrl` maps to `⌘`.
 ## Project layout
 
 ```
-Long_PDF_Maker.py          # long-page stitcher GUI
+Long_PDF_Maker.py     # long-page stitcher GUI
+Merge_Two_Pages.py    # two-pages-onto-one GUI
 Markdown_to_PDF.py    # Markdown → PDF CLI + GUI
 README.md
 ```
