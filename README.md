@@ -1,8 +1,9 @@
 # J PDF Maker
 
-Three Python/PyQt6 tools for making PDFs look the way you want:
+Four Python/PyQt6 tools for making PDFs look the way you want:
 
 - **Long_PDF_Maker.py** — stitch a multi-page PDF into a single long-page PDF while preserving vector quality, with draggable header/footer guides and a live preview.
+- **Long_PDF_To_A4.py** — reverse the process by splitting long PDF pages into standard A4 portrait pages while preserving vector quality.
 - **Merge_Two_Pages.py** — combine two PDF pages (e.g. the front and back of a document) onto a single page, with drag-to-position, edge/corner cropping, and undo/redo.
 - **Markdown_to_PDF.py** — convert Markdown to a styled PDF (colored code blocks, wrapped lines, configurable page size / orientation / text scale) with a live rendered preview.
 
@@ -63,6 +64,33 @@ Default output names from the save dialogs:
 | Open PDF | `Ctrl+O` |
 | Save PDF | `Ctrl+S` |
 | Save PNG | `Ctrl+E` |
+
+## Long_PDF_To_A4.py — long PDF to A4 pages
+
+Splits each tall source page from top to bottom, fits its width to A4 portrait,
+and keeps text and artwork as vector PDF content.
+
+```bash
+# GUI
+.venv/bin/python Long_PDF_To_A4.py
+
+# Command line
+.venv/bin/python Long_PDF_To_A4.py input.pdf
+.venv/bin/python Long_PDF_To_A4.py input.pdf -o output.pdf --margin-mm 5 --overlap-mm 10
+```
+
+### Features
+
+- Drag and drop a long PDF, or open one with `Ctrl+O`
+- Live preview of the resulting A4 pages
+- Optional blank margin around each page
+- Optional overlap that repeats content between adjacent pages
+- Handles every source page, not only the first one
+- Saves exact 210 × 297 mm A4 pages with vector quality (`Ctrl+S`)
+- Command-line mode for direct or batch-style conversion
+
+The default output name is `<name>_A4_pages.pdf`. The final page is not
+stretched; unused space at its bottom remains blank.
 
 ## Merge_Two_Pages.py — two pages onto one
 
@@ -164,6 +192,7 @@ On macOS, `Ctrl` maps to `⌘`.
 
 ```
 Long_PDF_Maker.py     # long-page stitcher GUI
+Long_PDF_To_A4.py     # long PDF to A4 splitter GUI + CLI
 Merge_Two_Pages.py    # two-pages-onto-one GUI
 Markdown_to_PDF.py    # Markdown → PDF CLI + GUI
 README.md
