@@ -1,10 +1,11 @@
 # J PDF Maker
 
-Four Python/PyQt6 tools for making PDFs look the way you want:
+Five Python/PyQt6 tools for making PDFs look the way you want:
 
 - **Long_PDF_Maker.py** — stitch a multi-page PDF into a single long-page PDF while preserving vector quality, with draggable header/footer guides and a live preview.
 - **Long_PDF_To_A4.py** — reverse the process by splitting long PDF pages into standard A4 portrait pages while preserving vector quality.
 - **Merge_Two_Pages.py** — combine two PDF pages (e.g. the front and back of a document) onto a single page, with drag-to-position, edge/corner cropping, and undo/redo.
+- **Redact_PDF.py** — scroll through a PDF, draw boxes over anything secret, and save a copy with that content permanently removed, with a live preview of the redacted result.
 - **Markdown_to_PDF.py** — convert Markdown to a styled PDF (colored code blocks, wrapped lines, configurable page size / orientation / text scale) with a live rendered preview.
 
 All apps share the same dark Catppuccin-style UI: a live preview and a row of controls that reflow to new rows when the window is narrow.
@@ -136,6 +137,71 @@ Default output name from the save dialog: `<name>_merged.pdf`.
 | Undo | `Ctrl+Z` |
 | Redo | `Ctrl+Y` |
 
+## Redact_PDF.py — permanent redaction
+
+Draws redaction boxes on a PDF and writes a copy with everything under them
+removed from the file, not just hidden behind a black rectangle.
+
+```bash
+# GUI
+.venv/bin/python Redact_PDF.py
+
+# Open a file straight away
+.venv/bin/python Redact_PDF.py input.pdf
+```
+
+### Features
+
+- Drag and drop a PDF (or click **Open PDF**, or press `Ctrl+O`)
+- **Continuous scrolling** — the whole document is one tall canvas, so you can
+  scroll from page 1 to the end and draw on any page without switching pages
+- **Drag on a page to draw a redaction box**; drag a box to move it, drag its
+  corner/edge handles to resize it, double-click or press `Del` to remove it.
+  Boxes belong to the page they were drawn on and are clamped to it
+- **Live preview** that scrolls too: a column of every page as it will be saved,
+  produced by actually applying the redactions to a throwaway copy, so what you
+  see is what gets saved. **Sync preview** keeps it aligned with the editor
+- Page box (`PgUp` / `PgDown`, or type a page number) jumps both panels, and the
+  **Copy to all pages** button repeats the current page's boxes everywhere —
+  handy for headers, stamps, or signatures
+- **Fill** (Black / White / No fill), **Images** (black out pixels / remove the
+  image / keep), and **Vector art** (remove if covered / if touched / keep)
+- Editor **zoom** (Fit width, 50–300%) for precise box placement
+- **Undo / Redo** for every change (`Ctrl+Z` / `Ctrl+Y`), plus **Clear page** and
+  **Clear all**
+- Saves as `<name>_redacted.pdf` (`Ctrl+S`)
+
+### How it works
+
+Each box becomes a PyMuPDF redaction annotation (`add_redact_annot`) which is
+then applied with `apply_redactions`, so the covered text, image pixels, and
+vector art are deleted from the page's content stream — copying text out of the
+result, or inspecting it with another tool, finds nothing. Everything outside the
+boxes stays untouched vector content.
+
+Boxes are stored in each page's *displayed* coordinate space (what the preview
+shows) and converted with the page's derotation matrix before being applied, so
+rotated pages and pages with an offset cropbox redact exactly where you drew.
+
+Both panels only rasterize what is on screen plus a one-screen margin, and drop
+bitmaps that scroll away, so a 300-page document opens in well under a second
+and stays responsive. Very tall pages (such as the output of
+`Long_PDF_Maker.py`) are rasterized in bands, so they stay sharp instead of
+being downscaled to fit a single bitmap.
+
+> Redaction is destructive by design. The source file is never modified — the
+> result is always written to a new file.
+
+### Shortcuts
+
+| Action | Shortcut |
+| --- | --- |
+| Open PDF | `Ctrl+O` |
+| Save redacted PDF | `Ctrl+S` |
+| Delete selected box | `Del` |
+| Undo / Redo | `Ctrl+Z` / `Ctrl+Y` |
+| Jump to previous / next page | `PgUp` / `PgDown` |
+
 ## Markdown_to_PDF.py — Markdown → styled PDF
 
 Converts a Markdown file to a styled PDF suitable for cheat sheets and technical docs.
@@ -194,6 +260,7 @@ On macOS, `Ctrl` maps to `⌘`.
 Long_PDF_Maker.py     # long-page stitcher GUI
 Long_PDF_To_A4.py     # long PDF to A4 splitter GUI + CLI
 Merge_Two_Pages.py    # two-pages-onto-one GUI
+Redact_PDF.py         # redaction box editor GUI
 Markdown_to_PDF.py    # Markdown → PDF CLI + GUI
 README.md
 ```

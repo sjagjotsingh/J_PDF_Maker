@@ -27,6 +27,9 @@ ENV/
 *_long_page_vector.pdf
 *_long_page_vector.png
 *_merged.pdf
+*_redacted.pdf
+*_A4_pages.pdf
+*._redact_tmp.pdf
 test_*.pdf
 
 # Misc
